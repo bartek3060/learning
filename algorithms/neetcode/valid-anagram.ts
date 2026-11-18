@@ -6,34 +6,26 @@ class ValidAnagramSortSolution {
   }
 }
 
-// v2 – zliczanie w Map
+// v2 – zliczanie w Map (metody tablic)
 // Time: O(n), Space: O(k), k = liczba różnych znaków
-// Poprawki po review:
-// - `!== null` -> `!== undefined` (Map.get zwraca undefined, nie null)
-// - sprawdzenie długości na starcie (bez niego s="a", t="ab" dawało true)
+// - Map.set zwraca mapę, więc reduce mieści się w jednej linii
+// - every przerywa przy pierwszym false (early exit)
+// - przy równych długościach wystarczy wykryć brakującą literę / licznik schodzący poniżej zera
 class ValidAnagramSolution {
   isAnagram(s: string, t: string): boolean {
     if (s.length !== t.length) return false;
 
-    const firstWordMap = s.split("").reduce((acc, letter) => {
-      const letterCount = acc.get(letter);
+    const letterCounts = [...s].reduce(
+      (acc, letter) => acc.set(letter, (acc.get(letter) ?? 0) + 1),
+      new Map<string, number>(),
+    );
 
-      if (letterCount === undefined) {
-        acc.set(letter, 1);
-        return acc;
-      }
-      acc.set(letter, letterCount + 1);
-      return acc;
-    }, new Map<string, number>());
+    return [...t].every((letter) => {
+      const letterCount = letterCounts.get(letter);
+      if (!letterCount) return false;
 
-    t.split("").forEach((letter) => {
-      const letterCount = firstWordMap.get(letter);
-
-      if (letterCount !== undefined) {
-        firstWordMap.set(letter, letterCount - 1);
-      }
+      letterCounts.set(letter, letterCount - 1);
+      return true;
     });
-
-    return [...firstWordMap.values()].every((value) => value === 0);
   }
 }
