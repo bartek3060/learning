@@ -11,6 +11,8 @@ export class EventsService {
   ) {}
 
   public async getEvents(): Promise<Event[]> {
-    return await this.eventsRepository.find();
+    return await this.eventsRepository.find({
+      order: { startsAt: 'ASC' },
+    });
   }
 }
