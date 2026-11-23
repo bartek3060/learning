@@ -1,0 +1,26 @@
+@import "tailwindcss";
+@import "@fontsource-variable/big-shoulders-display";
+@import "@fontsource-variable/atkinson-hyperlegible-next";
+
+@theme {
+  --color-*: initial;
+  --color-white: #ffffff;
+  --color-paper: #eef0f3;
+  --color-ink: #1d2238;
+  --color-ticket: #f5d547;
+  --color-muted: #5a6275;
+  --color-stamp: #b4232e;
+
+  --font-display: "Big Shoulders Display Variable", sans-serif;
+  --font-body: "Atkinson Hyperlegible Next Variable", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply bg-paper text-ink font-body antialiased;
+  }
+  :focus-visible {
+    outline: 3px solid var(--color-ink);
+    outline-offset: 3px;
+  }
+}
