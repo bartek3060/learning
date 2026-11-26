@@ -21,4 +21,7 @@ export class Event {
 
   @CreateDateColumn({ type: 'timestamptz' })
   createdAt!: Date;
+
+  @Column({ type: 'int' })
+  priceCents!: number;
 }
