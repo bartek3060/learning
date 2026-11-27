@@ -7,6 +7,7 @@ export interface EventDto {
   venue: string;
   startsAt: string;
   createdAt: string;
+  priceCents: number;
 }
 
 const getEvents = async ({
