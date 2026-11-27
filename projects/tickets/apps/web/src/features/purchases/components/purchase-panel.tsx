@@ -16,7 +16,6 @@ interface PurchasePanelProps {
 export function PurchasePanel({ event, onCancel }: PurchasePanelProps) {
   const quantityLabelId = useId();
   const [quantity, setQuantity] = useState(MIN_QUANTITY);
-  // One key per purchase attempt: created once when the panel opens, not on every render.
   const [idempotencyKey, setIdempotencyKey] = useState(() =>
     crypto.randomUUID(),
   );
@@ -25,14 +24,12 @@ export function PurchasePanel({ event, onCancel }: PurchasePanelProps) {
   const totalCents = event.priceCents * quantity;
   const error = purchase.isError ? getPurchaseError(purchase.error) : null;
 
-  // Every new purchase attempt gets a fresh key and a clean mutation state.
   const startNewAttempt = (nextQuantity: number) => {
     setQuantity(nextQuantity);
     setIdempotencyKey(crypto.randomUUID());
     purchase.reset();
   };
 
-  // Different quantity = different intent = new key (same key with a new body → 422).
   const changeQuantity = (next: number) => startNewAttempt(next);
 
   const pay = () => {
@@ -94,13 +91,11 @@ export function PurchasePanel({ event, onCancel }: PurchasePanelProps) {
         </span>
       </p>
 
-      {/* Always rendered so screen readers pick up the message when it appears. */}
       <div aria-live="polite">
         {error && <p className="mt-3 text-stamp">{error.message}</p>}
       </div>
 
       <div className="mt-4 flex flex-wrap items-center gap-4">
-        {/* Retry reuses the same idempotency key, so it can never charge twice. */}
         {error?.canRetry !== false && (
           <button
             disabled={purchase.isPending}

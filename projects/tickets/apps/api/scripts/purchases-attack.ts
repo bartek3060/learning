@@ -48,7 +48,6 @@ function uniquePurchaseIds(results: Result[]): Set<string> {
   );
 }
 
-// Retries after 402 (randomly declined payment) with the same key, like a real client would.
 async function purchaseUntilPaid(eventId: string, key: string, quantity: number): Promise<Result> {
   for (let attempt = 1; attempt <= 10; attempt++) {
     const result = await purchase(eventId, { quantity }, withKey(key));
@@ -64,7 +63,6 @@ async function main(): Promise<void> {
   if (!event) throw new Error('No events in the database');
   console.log(`Test event: ${event.name} (${event.id})\n`);
 
-  // 1. Sequential: retries with the same key get the same response.
   {
     const key = crypto.randomUUID();
     const first = await purchaseUntilPaid(event.id, key, 2);
@@ -78,7 +76,6 @@ async function main(): Promise<void> {
     );
   }
 
-  // 2. Concurrent: one request is processed, the rest get 409.
   {
     const key = crypto.randomUUID();
     const all = await Promise.all(
@@ -93,7 +90,6 @@ async function main(): Promise<void> {
     );
   }
 
-  // 3. Same key, different body → 422.
   {
     const key = crypto.randomUUID();
     await purchaseUntilPaid(event.id, key, 2);
@@ -101,7 +97,6 @@ async function main(): Promise<void> {
     check('Same key, different quantity → 422', other.status === 422, other);
   }
 
-  // 4. Input validation → 400.
   {
     const cases: [string, Promise<Result>][] = [
       ['missing header', purchase(event.id, { quantity: 1 }, {})],
@@ -117,7 +112,6 @@ async function main(): Promise<void> {
     }
   }
 
-  // 5. Missing event → 404, and the retry is 404 too (the key was released, not stuck with 409).
   {
     const key = crypto.randomUUID();
     const first = await purchase(MISSING_EVENT_ID, { quantity: 1 }, withKey(key));
